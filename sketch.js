@@ -5,14 +5,19 @@ var playKick;
 var kick;
 var kickLoop;
 
-// KICK
 
 // SYNTH MELODY
 var playSynthMelody;
 var synthMelody;
 var synthPattern;
 
-// SYNTH MELODY
+// BASS
+var playBass;
+var bass;
+var bassLoop;
+
+// analyser
+var analyser;
 
 // speecher
 var vocal = new p5.Speech();
@@ -51,33 +56,62 @@ function unlockAudioContext(audioCtx) {
 
 function preload() {
     unlockAudioContext(Tone.context);
-
 }
 
 function prepare() {
     // KICK
+    generateKick();
+
+    // SYNTH MELODY
+    generateSynthMelody();
+
+    // BASS
+    generateBass();
+
+    // analyser
+    createAnalyser();
+
+}
+
+function createAnalyser() {
+    // analyser = new Tone.Analyser("waveform", 2048);
+
+}
+
+function generateKick() {
     playKick = false;
-    kick = new Tone.MembraneSynth().toMaster()
+    kick = new Tone.MembraneSynth().toMaster();
     kickLoop = new Tone.Loop(function (time) {
         kick.triggerAttackRelease("C2", "8n");
     }, "8n").start(0);
-    // KICK
-
-    // SYNTH MELODY
-    playSynthMelody = false;
-    synthMelody = new Tone.PolySynth().toMaster();
-    synthPattern = new Tone.Pattern(function (time, note) {
-        synthMelody.triggerAttackRelease(note, "4n");
-    }, ['E2', 'D4', 'C3', 'D3'], "upDown");
-
-    synthPattern.loop = true;
-    synthPattern.interval = "8n";
-    // SYNTH MELODY
 }
 
+function generateSynthMelody() {
+    playSynthMelody = false;
+    synthMelody = new Tone.PolySynth().toMaster();
+    analyser = new Tone.Analyser("waveform", 2048);
+    synthMelody.connect(analyser);
+
+    synthPattern = new Tone.Pattern(function (time, note) {
+        synthMelody.triggerAttackRelease(note, "4n");
+    }, ['C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4'], "updown");
+    // ['E2', 'D4', 'C3', 'D3']
+    synthPattern.loop = true;
+    synthPattern.interval = "8n";
+}
+
+function generateBass() {
+    playBass = false;
+    bass = new Tone.MembraneSynth().toMaster();
+    bassLoop = new Tone.Loop(function (time) {
+        bass.triggerAttackRelease("C2", "8n");
+    }, "8n").start(0);
+
+
+}
 
 function setup() {
-    let canvas =  createCanvas(windowWidth, windowHeight);
+    let canvas = createCanvas(windowWidth, windowHeight);
     background(bgColor);
 
     // sketch configurations
@@ -104,21 +138,57 @@ function draw() {
         playSounds();
     }
 
-
     noStroke();
     fill(255);
     textSize(32);
     text(lastCommand, width / 2, height / 2);
-    if (getAudioContext().state !== 'running') {
-        text('click to start audio', width / 2, height / 2 + 50);
-    } else {
-        text('audio is enabled', width / 2, height / 2 + 50);
-    }
 
-    if (Tone.context.state !== 'running') {
-        text('click to start audio', width / 2, height / 2 + 100);
-    } else {
-        text('audio is enabled', width / 2, height / 2 + 100);
+    // if (getAudioContext().state !== 'running') {
+    //     text('click to start audio', width / 2, height / 2 + 50);
+    // } else {
+    //     text('audio is enabled', width / 2, height / 2 + 50);
+    // }
+
+    // if (Tone.context.state !== 'running') {
+    //     text('click to start audio', width / 2, height / 2 + 100);
+    // } else {
+    //     text('audio is enabled', width / 2, height / 2 + 100);
+    // }
+
+    const dim = Math.min(width, height);
+
+    // Black background
+    background(0, 0, 0, 20);
+    strokeWeight(dim * 0.0175);
+    stroke(255);
+    noFill();
+
+    // Draw waveform if playing
+    if (perform) {
+        const values = analyser.getValue();
+        const radius = dim * 0.3;
+
+        beginShape();
+        for (let i = 0; i < analyser.size; i++) {
+            const t = i / analyser.size;
+
+            const angle = t * PI * 2;
+            const amplitude = values[i];
+
+            const r = radius + radius * 0.5 * amplitude;
+
+            // Center the waveform
+            const cx = width / 2;
+            const cy = height / 2;
+
+            // Draw points around a circle
+            const x = cx + cos(angle) * r;
+            const y = cy + sin(angle) * r;
+
+            // Place vertex
+            vertex(x, y);
+        }
+        endShape(CLOSE);
     }
 
 }
@@ -146,6 +216,15 @@ function gotSpeech() {
                 }
             }
 
+            if (textValue.includes("bas")) {
+                if (playBass) {
+                    playBass = false;
+                } else {
+                    playBass = true;
+                }
+            }
+
+
             if (textValue.includes("söyle")) {
                 vocal.speak(rap);
             }
@@ -161,7 +240,7 @@ function gotSpeech() {
 
 function keyPressed() {
     console.log("[+] Key pressed.")
-    // Tone.Transport.start();
+
     // kick
     if (key == 'k') {
         if (playKick) {
@@ -179,6 +258,15 @@ function keyPressed() {
             playSynthMelody = true;
         }
     }
+
+    // bass
+    if (key == 'b') {
+        if (playBass) {
+            playBass = false;
+        } else {
+            playBass = true;
+        }
+    }
 }
 
 function playSounds() {
@@ -193,6 +281,12 @@ function playSounds() {
         synthPattern.start(0);
     } else {
         synthPattern.stop();
+    }
+
+    if (playBass) {
+        bassLoop.start(0);
+    } else {
+        bassLoop.stop();
     }
 }
 
