@@ -60,15 +60,20 @@ var MELODIC_MINOR_SCALE = [0, 2, 3, 5, 7, 9, 11, 12];
 var ALPHA_NAMES = ['A','B','C','D','E','F','G'];
 
 let arpej = [
-    ["C2", "D#2", "G2", "C3", "G2", "D#2"],
-    ["B1", "D2", "G2", "B2", "G2", "D2"],
-    ["A#1", "D2", "F2", "A#2", "F2", "D2"],
-    ["A1", "C2", "F2", "A2", "F2", "C2"],
-    ["G#1", "C2", "D#2", "G#2", "D#2", "C2"],
-    ["G1", "C2", "D#2", "G2", "D#2", "C2"],
-    ["F#1", "C2", "D#2", "F#2", "D#2", "C2"],
-    ["G1", "C2", "D2", "G2", "D2", "B1"]
+    ["C4", "D#4", "G4", "C5", "G4", "D#4"],
+    ["B3", "D4", "G4", "B4", "G4", "D4"],
+    ["A#3", "D4", "F4", "A#4", "F4", "D4"],
+    ["A3", "C4", "F4", "A4", "F4", "C4"],
+    ["G#3", "C4", "D#4", "G#4", "D#2", "C4"],
+    ["G3", "C4", "D#4", "G4", "D#4", "C4"],
+    ["F#3", "C4", "D#4", "F#4", "D#4", "C4"],
+    ["G3", "C4", "D4", "G4", "D4", "B3"]
   ];
+
+
+let ritaMarkov;
+let data;
+let lines;
 
 function getScaleFormula() {
     let minorType = Math.floor(Math.random() * 3);
@@ -101,12 +106,13 @@ function unlockAudioContext(audioCtx) {
 
 function preload() {
     unlockAudioContext(Tone.context);
+    data = loadStrings("data/corpus.txt");
 }
 
 function prepare() {
 
     let rootNoteValue = ALPHA_NAMES[Math.floor(Math.random() * ALPHA_NAMES.length)];
-    let rootNoteOctave = 2 + Math.floor(Math.random() * 4);
+    let rootNoteOctave = 2 + Math.floor(Math.random() * 3   );
     let rootNote = rootNoteValue + rootNoteOctave;
     // rootNoteValue = "C";
     console.log("Root note: " + rootNote);
@@ -116,15 +122,22 @@ function prepare() {
     generateKick(kickRootNote, "8n");
 
     // SYNTH MELODY
-    let pat = ['C3', 'E3', 'F3', 'G3'];
-    generateSynthMelody(pat);
+    // let pat = ['C3', 'E3', 'F3', 'G3'];
+    let pat = arpej[Math.floor(Math.random()*arpej.length)];
+    let melodyPattern = pat.slice(0, 5);
+    generateSynthMelody(melodyPattern);
 
     // BASS
-    let bassRootNote = rootNote;
+    let bassRootNote = rootNoteValue + rootNoteOctave - 2;
+    bassRootNote = rootNoteValue + Math.floor(Math.random() * 3).toString();
     generateBass(bassRootNote, "4n");
 
     // PIANO
-    let pianoRootNote = rootNote;
+
+    let pianoOctave =  3 + Math.floor(Math.random() * 5);
+    let pianoRootNote = rootNoteValue + pianoOctave.toString(10);
+    // console.log("Pinao Root Note: " + pianoRootNote);
+    pianoRootNote = "C4";
     let pianoTime = "4n";
     generatePiano(pianoRootNote, pianoTime);
 
@@ -137,7 +150,7 @@ function generateKick(note, time) {
         kick.triggerAttackRelease(note, "8n");
     }, time).start(0);
     kickLoop.loop = true;
-    let interVal = 1 + Math.floor(Math.random() * 10);
+    let interVal = 1 + Math.floor(Math.random() * 3);
     kickLoop.interval = 2 * interVal + "n";
 
     // send to analysis
@@ -154,7 +167,7 @@ function generateSynthMelody(notesArray) {
     }, notesArray, "updown");
 
     synthPattern.loop = true;
-    let interVal = 1 + Math.floor(Math.random() * 10);
+    let interVal = 1 + Math.floor(Math.random() * 3);
     synthPattern.interval = 2 * interVal + "n";
 
     // send to analysis
@@ -171,7 +184,7 @@ function generateBass(note, time) {
     }, time).start(0);
 
     bassLoop.loop = true;
-    let interVal = 1 + Math.floor(Math.random() * 10);
+    let interVal = 1 + Math.floor(Math.random() * 3);
     bassLoop.interval = 2 * interVal + "n";
 
     // send to analysis
@@ -183,7 +196,8 @@ function generateBass(note, time) {
 
 function generatePiano(note, time){
     playPiano = false;
-    piano = new Tone.PolySynth().toMaster();
+    piano = new Tone.Synth().toMaster();
+    piano.oscillator.type = "sine";
 
     var keyName = "C";
     var scaleFormula = getScaleFormula();
@@ -191,13 +205,14 @@ function generatePiano(note, time){
     // var myScale = makeScale(scaleFormula, keyName);
     var myScale = arpej[Math.floor(Math.random()*arpej.length)];
     let randomPatternType = Math.floor(Math.random() * 10);
-
+    console.log("DEBUG PIANO: " + note);
     pianoLoop = new Tone.Pattern(function(time, note){
         piano.triggerAttackRelease(note, '4n', time);
+        // piano.triggerAttackRelease(note, '4n', time);
     }, myScale, arpeggios[randomPatternType]);
 
     pianoLoop.loop = true;
-    let interVal = 1 + Math.floor(Math.random() * 10);
+    let interVal = 1 + Math.floor(Math.random() * 3);
     pianoLoop.interval = 2 * interVal + "n";
  }
 
@@ -221,6 +236,9 @@ function setup() {
     vocal.setLang('tr');
     vocal.setVoice("Cem");
     vocal.setRate(1.2);
+    markov = new RiMarkov(3);
+    markov.loadText(data.join(" "));
+
 }
 
 function draw() {
@@ -232,7 +250,7 @@ function draw() {
     noStroke();
     fill(255);
     textSize(32);
-    text(lastCommand, width / 2, height / 2);
+    // text(lastCommand, width / 2, height / 2);
 
     drawVisuals();
 
@@ -419,27 +437,63 @@ function gotSpeech() {
         if (textValue) {
             console.log(textValue);
             if (textValue.includes("davul")) {
-                if (playKick) {
-                    playKick = false;
+                if(textValue.includes("değiştir")) {
+                    kickLoop.stop();
+                    let rootNoteValue = ALPHA_NAMES[Math.floor(Math.random() * ALPHA_NAMES.length)];
+                    let rootNoteOctave = 2 + Math.floor(Math.random() * 3   );
+                    let rootNote = rootNoteValue + rootNoteOctave;
+                    generateKick(rootNote, "8n");
                 } else {
-                    playKick = true;
+                    if (playKick) {
+                        playKick = false;
+                    } else {
+                        playKick = true;
+                    }
                 }
-
             }
 
             if (textValue.includes("melodi")) {
-                if (playSynthMelody) {
-                    playSynthMelody = false;
+                if(textValue.includes("değiştir")) {
+                    let pat = arpej[Math.floor(Math.random()*arpej.length)];
+                    let melodyPattern = pat.slice(0, 5);
+                    generateSynthMelody(melodyPattern);
+
                 } else {
-                    playSynthMelody = true;
+                    if (playSynthMelody) {
+                        playSynthMelody = false;
+                    } else {
+                        playSynthMelody = true;
+                    }
                 }
             }
 
             if (textValue.includes("bas")) {
-                if (playBass) {
-                    playBass = false;
+                if(textValue.includes("değiştir")) {
+                    let rootNoteValue = ALPHA_NAMES[Math.floor(Math.random() * ALPHA_NAMES.length)];
+                    let rootNoteOctave = 2 + Math.floor(Math.random() * 3   );
+                    let bassRootNote = rootNoteValue + rootNoteOctave - 2;
+                    bassRootNote = rootNoteValue + Math.floor(Math.random() * 3).toString();
+                    generateBass(bassRootNote, "4n");
                 } else {
-                    playBass = true;
+                    if (playBass) {
+                        playBass = false;
+                    } else {
+                        playBass = true;
+                    }
+                }
+            }
+
+            if (textValue.includes("piyano")) {
+                if(textValue.includes("değiştir")) {
+                    pianoRootNote = "C4";
+                    let pianoTime = "4n";
+                    generatePiano(pianoRootNote, pianoTime);
+                } else {
+                    if (playPiano) {
+                        playPiano = false;
+                    } else {
+                        playPiano = true;
+                    }
                 }
             }
 
@@ -448,11 +502,14 @@ function gotSpeech() {
             }
 
             if (textValue.includes("ritim düşür")) {
-                deccreaseBPM();
+                decreaseBPM();
             }
 
             if (textValue.includes("söyle")) {
-                vocal.speak(lyrics);
+                // vocal.speak(lyrics);
+                lines = markov.generateSentences(10);
+                console.log(lines);
+                vocal.speak(lines);
             }
 
 
@@ -505,7 +562,16 @@ function keyPressed() {
     }
 
     if(key == 'q') {
+        kickLoop.stop();
+        synthPattern.stop();
+        bassLoop.stop();
+        pianoLoop.stop();
         prepare();
+    }
+
+    if(key == 'g') {
+        lines = markov.generateSentences(10);
+        console.log(lines);
     }
 }
 
@@ -578,6 +644,6 @@ function increaseBPM() {
     Tone.Transport.bpm.value += 5;
 }
 
-function deccreaseBPM() {
+function decreaseBPM() {
     Tone.Transport.bpm.value -= 5;
 }
