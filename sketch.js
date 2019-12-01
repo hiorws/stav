@@ -164,15 +164,19 @@ function generateKick(note, time) {
     // send to analysis
     analyserKick = new Tone.Analyser("waveform", 2048);
     kick.connect(analyserKick);
+    kick.volume.value = -10;
+    console.log("kick vol: " + kick.volume.value);
 }
 
 function generateSynthMelody(notesArray) {
     playSynthMelody = false;
     synthMelody = new Tone.PolySynth().toMaster();
 
+    let synthPatternArpeggio = arpeggios[Math.floor(Math.random() * arpeggios.length)];
+    console.log(synthPattern);
     synthPattern = new Tone.Pattern(function (time, note) {
         synthMelody.triggerAttackRelease(note, "4n");
-    }, notesArray, "updown");
+    }, notesArray, synthPatternArpeggio);
 
     synthPattern.loop = true;
     let interVal = 1 + Math.floor(Math.random() * 3);
@@ -182,6 +186,8 @@ function generateSynthMelody(notesArray) {
     analyserSynthMelody = new Tone.Analyser("fft", 1024);
     amplitudesSynthMelody = new Array(analyserSynthMelody.size).fill(0);
     synthMelody.connect(analyserSynthMelody);
+    synthMelody.volume.value = -10;
+    console.log("synth vol: " + synthMelody.volume.value);
 }
 
 function generateBass(note, time) {
@@ -199,6 +205,8 @@ function generateBass(note, time) {
     anaylserBass = new Tone.Analyser("fft", 1024);
     amplitudesBass = new Array(anaylserBass.size).fill(0);
     bass.connect(anaylserBass);
+    bass.volume.value = -10;
+    console.log("bass vol: " + bass.volume.value);
 
 }
 
@@ -222,6 +230,8 @@ function generatePiano(note, time) {
     pianoLoop.loop = true;
     let interVal = 1 + Math.floor(Math.random() * 3);
     pianoLoop.interval = 2 * interVal + "n";
+    piano.volume.value = -10;
+    console.log("piano vol: " + piano.volume.value);
 }
 
 function setup() {
@@ -283,7 +293,7 @@ function draw() {
 function CheatSheetText() {
     fill(255);
     textSize(18);
-    text(bpm, width * 0.9, height * 0.1);
+    text(int(bpm), width * 0.9, height * 0.1);
 
     if (playKick) {
         textSize(32);
@@ -548,7 +558,7 @@ function gotSpeech() {
                 }
             }
 
-            if (textValue.includes("bas")) {
+            if (textValue.includes("bas") || textValue.includes("bus") || textValue.includes("Bass")) {
                 if (textValue.includes("değiştir")) {
                     let rootNoteValue = ALPHA_NAMES[Math.floor(Math.random() * ALPHA_NAMES.length)];
                     let rootNoteOctave = 2 + Math.floor(Math.random() * 3);
@@ -728,9 +738,9 @@ function windowResized() {
 }
 
 function increaseBPM() {
-    Tone.Transport.bpm.value += 5;
+    Tone.Transport.bpm.value += 10;
 }
 
 function decreaseBPM() {
-    Tone.Transport.bpm.value -= 5;
+    Tone.Transport.bpm.value -= 10;
 }
