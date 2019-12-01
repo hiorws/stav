@@ -3,7 +3,8 @@ let randColor;
 let colorList = [];
 
 let CheatSheet = ["davul", "melodi", "bas", "piyano",
-    "ritim arttır", "ritim düşür", "söyle"];
+    "ritim arttır", "ritim düşür", "söyle"
+];
 
 var ritimarttir;
 var ritimdusur;
@@ -40,15 +41,6 @@ var amplitudesBass;
 
 // speecher
 var vocal = new p5.Speech();
-var lyrics = "Yalnızlık kaplandı odam Anlatınca ben sana, \
-        bakmazdın Olan umutlarım yok olunca yaşlardı \
-        dolan İşte bende ağlamaya başlardım o an \
-        İstediğim benim senin benim kadar ağlamaman \
-        Senin gibi gülmesemde bi gün kahkahalar attığımı \
-        Görürsen şayet o gün aşka tama etmediğim gündür \
-        ve başka sana \
-        Yalnızlıkların ardında yine sen varsın her zaman yanımda \
-        Yok olmadı olmaz bu hatıralar yine sahipsiz günlerde kalınca..";
 
 // speech recognizer
 let speechRec;
@@ -290,6 +282,7 @@ function draw() {
     // }
 
 }
+
 function CheatSheetText() {
     fill(255);
     textSize(18);
@@ -558,7 +551,7 @@ function gotSpeech() {
                 }
             }
 
-            if (textValue.includes("bas") || textValue.includes("bus") || textValue.includes("Bass")) {
+            if (textValue.includes("bas") || textValue.includes("bus") || textValue.includes("Bus") || textValue.includes("Bass")) {
                 if (textValue.includes("değiştir")) {
                     let rootNoteValue = ALPHA_NAMES[Math.floor(Math.random() * ALPHA_NAMES.length)];
                     let rootNoteOctave = 2 + Math.floor(Math.random() * 3);
@@ -603,9 +596,11 @@ function gotSpeech() {
             }
 
             if (textValue.includes("söyle")) {
-                // vocal.speak(lyrics);
                 lines = markov.generateSentences(10);
                 console.log(lines);
+                let speed = random(1, 1.3)
+                console.log("Speed: " + speed);
+                vocal.setRate(speed);
                 vocal.speak(lines);
             }
 
