@@ -106,8 +106,10 @@ function preload() {
 function prepare() {
 
     let rootNoteValue = ALPHA_NAMES[Math.floor(Math.random() * ALPHA_NAMES.length)];
-    let rootNoteOctave = 1 + Math.floor(Math.random() * 5);
+    let rootNoteOctave = 2 + Math.floor(Math.random() * 4);
     let rootNote = rootNoteValue + rootNoteOctave;
+    // rootNoteValue = "C";
+    console.log("Root note: " + rootNote);
 
     // KICK
     let kickRootNote = rootNote;
@@ -502,7 +504,7 @@ function keyPressed() {
         }
     }
 
-    if(key == 'p') {
+    if(key == 'q') {
         prepare();
     }
 }
