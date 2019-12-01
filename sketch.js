@@ -1,4 +1,12 @@
 let bgColor = 0;
+let randColor;
+let colorList = [];
+
+let CheatSheet = ["davul", "melodi", "bas", "piyano",
+    "ritim arttır", "ritim düşür", "söyle"];
+
+var ritimarttir;
+var ritimdusur;
 
 // KICK
 var playKick;
@@ -57,7 +65,7 @@ var NATURAL_MINOR_SCALE = [0, 2, 3, 5, 7, 8, 10, 12];
 var HARMONIC_MINOR_SCALE = [0, 2, 3, 5, 7, 8, 11, 12];
 var MELODIC_MINOR_SCALE = [0, 2, 3, 5, 7, 9, 11, 12];
 
-var ALPHA_NAMES = ['A','B','C','D','E','F','G'];
+var ALPHA_NAMES = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
 
 let arpej = [
     ["C4", "D#4", "G4", "C5", "G4", "D#4"],
@@ -68,7 +76,7 @@ let arpej = [
     ["G3", "C4", "D#4", "G4", "D#4", "C4"],
     ["F#3", "C4", "D#4", "F#4", "D#4", "C4"],
     ["G3", "C4", "D4", "G4", "D4", "B3"]
-  ];
+];
 
 
 let ritaMarkov;
@@ -112,7 +120,7 @@ function preload() {
 function prepare() {
 
     let rootNoteValue = ALPHA_NAMES[Math.floor(Math.random() * ALPHA_NAMES.length)];
-    let rootNoteOctave = 2 + Math.floor(Math.random() * 3   );
+    let rootNoteOctave = 2 + Math.floor(Math.random() * 3);
     let rootNote = rootNoteValue + rootNoteOctave;
     // rootNoteValue = "C";
     console.log("Root note: " + rootNote);
@@ -123,7 +131,7 @@ function prepare() {
 
     // SYNTH MELODY
     // let pat = ['C3', 'E3', 'F3', 'G3'];
-    let pat = arpej[Math.floor(Math.random()*arpej.length)];
+    let pat = arpej[Math.floor(Math.random() * arpej.length)];
     let melodyPattern = pat.slice(0, 5);
     generateSynthMelody(melodyPattern);
 
@@ -134,7 +142,7 @@ function prepare() {
 
     // PIANO
 
-    let pianoOctave =  3 + Math.floor(Math.random() * 5);
+    let pianoOctave = 3 + Math.floor(Math.random() * 5);
     let pianoRootNote = rootNoteValue + pianoOctave.toString(10);
     // console.log("Pinao Root Note: " + pianoRootNote);
     pianoRootNote = "C4";
@@ -194,7 +202,7 @@ function generateBass(note, time) {
 
 }
 
-function generatePiano(note, time){
+function generatePiano(note, time) {
     playPiano = false;
     piano = new Tone.Synth().toMaster();
     piano.oscillator.type = "sine";
@@ -203,10 +211,10 @@ function generatePiano(note, time){
     var scaleFormula = getScaleFormula();
     // TODO: choose according to key
     // var myScale = makeScale(scaleFormula, keyName);
-    var myScale = arpej[Math.floor(Math.random()*arpej.length)];
+    var myScale = arpej[Math.floor(Math.random() * arpej.length)];
     let randomPatternType = Math.floor(Math.random() * 10);
     console.log("DEBUG PIANO: " + note);
-    pianoLoop = new Tone.Pattern(function(time, note){
+    pianoLoop = new Tone.Pattern(function (time, note) {
         piano.triggerAttackRelease(note, '4n', time);
         // piano.triggerAttackRelease(note, '4n', time);
     }, myScale, arpeggios[randomPatternType]);
@@ -214,7 +222,7 @@ function generatePiano(note, time){
     pianoLoop.loop = true;
     let interVal = 1 + Math.floor(Math.random() * 3);
     pianoLoop.interval = 2 * interVal + "n";
- }
+}
 
 function setup() {
     let canvas = createCanvas(windowWidth, windowHeight);
@@ -222,6 +230,9 @@ function setup() {
 
     // sketch configurations
     textAlign(CENTER, CENTER);
+
+    colorList = [color('#aabf12'), color('#33ab12'), color('#165512'), color('#fe3fa2'), color('#a345cd')];
+    randColor = colorList[int(random(0, colorList.length))];
 
     // start transport
     let lang = 'tr';
@@ -252,6 +263,8 @@ function draw() {
     textSize(32);
     // text(lastCommand, width / 2, height / 2);
 
+    CheatSheetText();
+
     drawVisuals();
 
     // if (getAudioContext().state !== 'running') {
@@ -265,6 +278,66 @@ function draw() {
     // } else {
     //     text('audio is enabled', width / 2, height / 2 + 100);
     // }
+
+}
+function CheatSheetText() {
+    fill(255);
+    textSize(18);
+    text(bpm, width * 0.9, height * 0.1);
+
+    if (playKick) {
+        textSize(32);
+        fill(randColor);
+    } else {
+        textSize(26);
+        fill(255, 255, 255, 150);
+    }
+    text(CheatSheet[0], width * 0.08, height * 0.1);
+
+    if (playSynthMelody) {
+        textSize(32);
+        fill(randColor);
+    } else {
+        textSize(26);
+        fill(255, 255, 255, 150);
+    }
+    text(CheatSheet[1], width * 0.08, height * 0.2);
+
+    if (playBass) {
+        textSize(32);
+        fill(randColor);
+    } else {
+        textSize(26);
+        fill(255, 255, 255, 150);
+    }
+    text(CheatSheet[2], width * 0.08, height * 0.3);
+
+    if (playPiano) {
+        textSize(32);
+        fill(randColor);
+    } else {
+        textSize(26);
+        fill(255, 255, 255, 150);
+    }
+    text(CheatSheet[3], width * 0.08, height * 0.4);
+
+    if (ritimarttir) {
+        textSize(32);
+        fill(randColor);
+    } else {
+        textSize(26);
+        fill(255, 255, 255, 150);
+    }
+    text(CheatSheet[4], width * 0.9, height * 0.2);
+
+    if (ritimdusur) {
+        textSize(32);
+        fill(randColor);
+    } else {
+        textSize(26);
+        fill(255, 255, 255, 150);
+    }
+    text(CheatSheet[5], width * 0.9, height * 0.3);
 
 }
 
@@ -295,7 +368,7 @@ function drawFFT() {
     // background(0);
 
     strokeWeight(dim * 0.0175);
-    stroke(255);
+    stroke(randColor);
     noFill();
 
 
@@ -342,10 +415,15 @@ function drawFFT() {
         const thickness = lerp(minThickness, maxThickness, signal);
 
         strokeWeight(thickness);
-        stroke(255);
+        stroke(randColor);
+        noFill();
         // draw an arc
         const d = r * 2; // diameter
         arc(width / 2, height / 2, d, d, 0, PI * 2);
+        stroke(randColor);
+
+        fill(randColor);
+        triangle(width * 0.55, height * 0.5, width * 0.45, height * 0.45, width * 0.45, height * 0.55);
     }
 
 }
@@ -378,7 +456,7 @@ function drawWaveForm() {
     // Black background
     background(0, 0, 0, 20);
     strokeWeight(dim * 0.0175);
-    stroke(255);
+    stroke(randColor);
     noFill();
 
     // Draw waveform if playing
@@ -423,8 +501,9 @@ function drawFFTBasic() {
         //fill(i, 255, 255);
         var x = r * cos(angle);
         var y = r * sin(angle);
-        stroke(i, 255, 255);
-        line(0, 0, x * 10, y * 10);
+        stroke(20, i, 150);
+        noFill();
+        rect(0, 0, x * 8, y * 8);
     }
     pop();
 }
@@ -437,24 +516,25 @@ function gotSpeech() {
         if (textValue) {
             console.log(textValue);
             if (textValue.includes("davul")) {
-                if(textValue.includes("değiştir")) {
+                if (textValue.includes("değiştir")) {
                     kickLoop.stop();
                     let rootNoteValue = ALPHA_NAMES[Math.floor(Math.random() * ALPHA_NAMES.length)];
-                    let rootNoteOctave = 2 + Math.floor(Math.random() * 3   );
+                    let rootNoteOctave = 2 + Math.floor(Math.random() * 3);
                     let rootNote = rootNoteValue + rootNoteOctave;
                     generateKick(rootNote, "8n");
                 } else {
                     if (playKick) {
                         playKick = false;
                     } else {
+                        randColor = colorList[int(random(0, colorList.length))];
                         playKick = true;
                     }
                 }
             }
 
             if (textValue.includes("melodi")) {
-                if(textValue.includes("değiştir")) {
-                    let pat = arpej[Math.floor(Math.random()*arpej.length)];
+                if (textValue.includes("değiştir")) {
+                    let pat = arpej[Math.floor(Math.random() * arpej.length)];
                     let melodyPattern = pat.slice(0, 5);
                     generateSynthMelody(melodyPattern);
 
@@ -462,15 +542,16 @@ function gotSpeech() {
                     if (playSynthMelody) {
                         playSynthMelody = false;
                     } else {
+                        randColor = colorList[int(random(0, colorList.length))];
                         playSynthMelody = true;
                     }
                 }
             }
 
             if (textValue.includes("bas")) {
-                if(textValue.includes("değiştir")) {
+                if (textValue.includes("değiştir")) {
                     let rootNoteValue = ALPHA_NAMES[Math.floor(Math.random() * ALPHA_NAMES.length)];
-                    let rootNoteOctave = 2 + Math.floor(Math.random() * 3   );
+                    let rootNoteOctave = 2 + Math.floor(Math.random() * 3);
                     let bassRootNote = rootNoteValue + rootNoteOctave - 2;
                     bassRootNote = rootNoteValue + Math.floor(Math.random() * 3).toString();
                     generateBass(bassRootNote, "4n");
@@ -478,13 +559,14 @@ function gotSpeech() {
                     if (playBass) {
                         playBass = false;
                     } else {
+                        randColor = colorList[int(random(0, colorList.length))];
                         playBass = true;
                     }
                 }
             }
 
             if (textValue.includes("piyano")) {
-                if(textValue.includes("değiştir")) {
+                if (textValue.includes("değiştir")) {
                     pianoRootNote = "C4";
                     let pianoTime = "4n";
                     generatePiano(pianoRootNote, pianoTime);
@@ -492,16 +574,21 @@ function gotSpeech() {
                     if (playPiano) {
                         playPiano = false;
                     } else {
+                        randColor = colorList[int(random(0, colorList.length))];
                         playPiano = true;
                     }
                 }
             }
 
             if (textValue.includes("ritim arttır")) {
+                ritimarttir = true;
+                ritimdusur = false;
                 increaseBPM();
             }
 
             if (textValue.includes("ritim düşür")) {
+                ritimarttir = false;
+                ritimdusur = true;
                 decreaseBPM();
             }
 
@@ -553,7 +640,7 @@ function keyPressed() {
         }
     }
 
-    if(key == 'p') {
+    if (key == 'p') {
         if (playPiano) {
             playPiano = false;
         } else {
@@ -561,7 +648,7 @@ function keyPressed() {
         }
     }
 
-    if(key == 'q') {
+    if (key == 'q') {
         kickLoop.stop();
         synthPattern.stop();
         bassLoop.stop();
@@ -569,7 +656,7 @@ function keyPressed() {
         prepare();
     }
 
-    if(key == 'g') {
+    if (key == 'g') {
         lines = markov.generateSentences(10);
         console.log(lines);
     }
