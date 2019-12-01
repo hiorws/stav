@@ -15,6 +15,9 @@ Repoyu bilgisayarınıza klonladıktan sonra herhangi basit bir http server ile 
 Python SimpleHTTPServer:
 - `python3 -m http.server`
 
+## Canlı Demo
+[Godot'yu Beklerken](http://godotyubeklerken.com:8000)
+
 ## Komutlar
 
 - Davul
